@@ -551,7 +551,7 @@
                     <div onClick="{{ focusEd }}" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;border:1px solid var(--color-signal-orange, #ee6018);border-radius:6px;padding:8px 10px;cursor:text;background:var(--surface-page-light);">
                       <sc-for list="{{ edTokens }}" as="tk" hint-placeholder-count="0">
                         <sc-if value="{{ tk.isText }}" hint-placeholder-val="{{ false }}"><span style="font-size:13.5px;color:var(--text-secondary);">{{ tk.v }}</span></sc-if>
-                        <sc-if value="{{ tk.isPerson }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;gap:4px;border:1px solid var(--border-light-strong);border-radius:5px;padding:1px 7px;font-size:12.5px;color:var(--text-primary);white-space:nowrap;"><span style="color:var(--text-muted);">@</span>{{ tk.v }}</span></sc-if>
+                        <sc-if value="{{ tk.isPerson }}" hint-placeholder-val="{{ false }}"><span style="color:var(--text-primary);font-weight:500;white-space:nowrap;"><span style="color:var(--text-muted);">@</span>{{ tk.v }}</span></sc-if>
                         <sc-if value="{{ tk.isTool }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;border-radius:5px;padding:1px 7px;font-family:var(--font-geist-mono);font-size:11.5px;letter-spacing:-0.23px;color:var(--text-primary);background:var(--surface-well-light);white-space:nowrap;">{{ tk.v }}</span></sc-if>
                         <sc-if value="{{ tk.isChannel }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;gap:3px;border:1px solid var(--border-light);border-radius:5px;padding:1px 7px;font-family:var(--font-geist-mono);font-size:11.5px;letter-spacing:-0.23px;color:var(--text-secondary);white-space:nowrap;"><span style="color:var(--text-muted);">#</span>{{ tk.v }}</span></sc-if>
                       </sc-for>
@@ -572,7 +572,7 @@
                     <span style="flex:1;">
                       <sc-for list="{{ b.tokens }}" as="tk" hint-placeholder-count="1">
                         <sc-if value="{{ tk.isText }}" hint-placeholder-val="{{ true }}"><span>{{ tk.v }}</span></sc-if>
-                        <sc-if value="{{ tk.isPerson }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;gap:4px;border:1px solid var(--border-light-strong);border-radius:5px;padding:1px 7px;margin:0 2px;font-size:12.5px;color:var(--text-primary);white-space:nowrap;"><span style="color:var(--text-muted);">@</span>{{ tk.v }}</span></sc-if>
+                        <sc-if value="{{ tk.isPerson }}" hint-placeholder-val="{{ false }}"><span onClick="{{ tk.open }}" style="color:var(--text-primary);font-weight:500;white-space:nowrap;cursor:{{ tk.cursor }};text-decoration:{{ tk.deco }};text-decoration-color:var(--text-subtle);text-decoration-thickness:1px;text-underline-offset:3px;" style-hover="text-decoration-color:var(--text-primary);"><span style="color:var(--text-muted);">@</span>{{ tk.v }}</span></sc-if>
                         <sc-if value="{{ tk.isTool }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;border-radius:5px;padding:1px 7px;margin:0 2px;font-family:var(--font-geist-mono);font-size:11.5px;letter-spacing:-0.23px;color:var(--text-primary);background:var(--surface-well-light);white-space:nowrap;">{{ tk.v }}</span></sc-if>
                         <sc-if value="{{ tk.isChannel }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;gap:3px;border:1px solid var(--border-light);border-radius:5px;padding:1px 7px;margin:0 2px;font-family:var(--font-geist-mono);font-size:11.5px;letter-spacing:-0.23px;color:var(--text-secondary);white-space:nowrap;"><span style="color:var(--text-muted);">#</span>{{ tk.v }}</span></sc-if>
                       </sc-for>
@@ -588,7 +588,7 @@
                     <span style="flex:1;min-width:0;">
                     <sc-for list="{{ b.tokens }}" as="tk" hint-placeholder-count="1">
                       <sc-if value="{{ tk.isText }}" hint-placeholder-val="{{ true }}"><span>{{ tk.v }}</span></sc-if>
-                      <sc-if value="{{ tk.isPerson }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;gap:4px;border:1px solid var(--border-light-strong);border-radius:5px;padding:1px 7px;margin:0 2px;font-size:12.5px;color:var(--text-primary);white-space:nowrap;"><span style="color:var(--text-muted);">@</span>{{ tk.v }}</span></sc-if>
+                      <sc-if value="{{ tk.isPerson }}" hint-placeholder-val="{{ false }}"><span onClick="{{ tk.open }}" style="color:var(--text-primary);font-weight:500;white-space:nowrap;cursor:{{ tk.cursor }};text-decoration:{{ tk.deco }};text-decoration-color:var(--text-subtle);text-decoration-thickness:1px;text-underline-offset:3px;" style-hover="text-decoration-color:var(--text-primary);"><span style="color:var(--text-muted);">@</span>{{ tk.v }}</span></sc-if>
                       <sc-if value="{{ tk.isTool }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;border-radius:5px;padding:1px 7px;margin:0 2px;font-family:var(--font-geist-mono);font-size:11.5px;letter-spacing:-0.23px;color:var(--text-primary);background:var(--surface-well-light);white-space:nowrap;">{{ tk.v }}</span></sc-if>
                       <sc-if value="{{ tk.isChannel }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;gap:3px;border:1px solid var(--border-light);border-radius:5px;padding:1px 7px;margin:0 2px;font-family:var(--font-geist-mono);font-size:11.5px;letter-spacing:-0.23px;color:var(--text-secondary);white-space:nowrap;"><span style="color:var(--text-muted);">#</span>{{ tk.v }}</span></sc-if>
                     </sc-for>
@@ -602,7 +602,7 @@
                     <span style="flex:1;font-size:14px;line-height:1.7;letter-spacing:-0.14px;color:var(--text-secondary);">
                       <sc-for list="{{ b.tokens }}" as="tk" hint-placeholder-count="1">
                         <sc-if value="{{ tk.isText }}" hint-placeholder-val="{{ true }}"><span>{{ tk.v }}</span></sc-if>
-                        <sc-if value="{{ tk.isPerson }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;gap:4px;border:1px solid var(--border-light-strong);border-radius:5px;padding:1px 7px;margin:0 2px;font-size:12.5px;color:var(--text-primary);white-space:nowrap;"><span style="color:var(--text-muted);">@</span>{{ tk.v }}</span></sc-if>
+                        <sc-if value="{{ tk.isPerson }}" hint-placeholder-val="{{ false }}"><span onClick="{{ tk.open }}" style="color:var(--text-primary);font-weight:500;white-space:nowrap;cursor:{{ tk.cursor }};text-decoration:{{ tk.deco }};text-decoration-color:var(--text-subtle);text-decoration-thickness:1px;text-underline-offset:3px;" style-hover="text-decoration-color:var(--text-primary);"><span style="color:var(--text-muted);">@</span>{{ tk.v }}</span></sc-if>
                         <sc-if value="{{ tk.isTool }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;border-radius:5px;padding:1px 7px;margin:0 2px;font-family:var(--font-geist-mono);font-size:11.5px;letter-spacing:-0.23px;color:var(--text-primary);background:var(--surface-well-light);white-space:nowrap;">{{ tk.v }}</span></sc-if>
                         <sc-if value="{{ tk.isChannel }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;gap:3px;border:1px solid var(--border-light);border-radius:5px;padding:1px 7px;margin:0 2px;font-family:var(--font-geist-mono);font-size:11.5px;letter-spacing:-0.23px;color:var(--text-secondary);white-space:nowrap;"><span style="color:var(--text-muted);">#</span>{{ tk.v }}</span></sc-if>
                       </sc-for>
@@ -617,7 +617,7 @@
                       <span style="display:block;font-family:var(--font-geist-mono);letter-spacing:-0.24px;font-size:10px;text-transform:uppercase;color:var(--text-muted);margin-bottom:2px;">Operator gate · step {{ b.n }}</span>
                       <sc-for list="{{ b.tokens }}" as="tk" hint-placeholder-count="1">
                         <sc-if value="{{ tk.isText }}" hint-placeholder-val="{{ true }}"><span>{{ tk.v }}</span></sc-if>
-                        <sc-if value="{{ tk.isPerson }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;gap:4px;border:1px solid var(--border-light-strong);border-radius:5px;padding:1px 7px;margin:0 2px;font-size:12.5px;color:var(--text-primary);white-space:nowrap;"><span style="color:var(--text-muted);">@</span>{{ tk.v }}</span></sc-if>
+                        <sc-if value="{{ tk.isPerson }}" hint-placeholder-val="{{ false }}"><span onClick="{{ tk.open }}" style="color:var(--text-primary);font-weight:500;white-space:nowrap;cursor:{{ tk.cursor }};text-decoration:{{ tk.deco }};text-decoration-color:var(--text-subtle);text-decoration-thickness:1px;text-underline-offset:3px;" style-hover="text-decoration-color:var(--text-primary);"><span style="color:var(--text-muted);">@</span>{{ tk.v }}</span></sc-if>
                         <sc-if value="{{ tk.isTool }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;border-radius:5px;padding:1px 7px;margin:0 2px;font-family:var(--font-geist-mono);font-size:11.5px;letter-spacing:-0.23px;color:var(--text-primary);background:var(--surface-well-light);white-space:nowrap;">{{ tk.v }}</span></sc-if>
                         <sc-if value="{{ tk.isChannel }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;gap:3px;border:1px solid var(--border-light);border-radius:5px;padding:1px 7px;margin:0 2px;font-family:var(--font-geist-mono);font-size:11.5px;letter-spacing:-0.23px;color:var(--text-secondary);white-space:nowrap;"><span style="color:var(--text-muted);">#</span>{{ tk.v }}</span></sc-if>
                       </sc-for>
@@ -645,7 +645,7 @@
                 <div onClick="{{ focusEd }}" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;border:1px solid var(--border-light-strong);border-radius:6px;padding:9px 12px;cursor:text;">
                   <sc-for list="{{ edTokens }}" as="tk" hint-placeholder-count="0">
                     <sc-if value="{{ tk.isText }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;color:var(--text-secondary);">{{ tk.v }}</span></sc-if>
-                    <sc-if value="{{ tk.isPerson }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;gap:4px;border:1px solid var(--border-light-strong);border-radius:5px;padding:1px 7px;font-size:12.5px;color:var(--text-primary);white-space:nowrap;"><span style="color:var(--text-muted);">@</span>{{ tk.v }}</span></sc-if>
+                    <sc-if value="{{ tk.isPerson }}" hint-placeholder-val="{{ false }}"><span style="color:var(--text-primary);font-weight:500;white-space:nowrap;"><span style="color:var(--text-muted);">@</span>{{ tk.v }}</span></sc-if>
                     <sc-if value="{{ tk.isTool }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;border-radius:5px;padding:1px 7px;font-family:var(--font-geist-mono);font-size:11.5px;letter-spacing:-0.23px;color:var(--text-primary);background:var(--surface-well-light);white-space:nowrap;">{{ tk.v }}</span></sc-if>
                     <sc-if value="{{ tk.isChannel }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;gap:3px;border:1px solid var(--border-light);border-radius:5px;padding:1px 7px;font-family:var(--font-geist-mono);font-size:11.5px;letter-spacing:-0.23px;color:var(--text-secondary);white-space:nowrap;"><span style="color:var(--text-muted);">#</span>{{ tk.v }}</span></sc-if>
                   </sc-for>
@@ -1024,7 +1024,23 @@ class Component extends DCLogic {
     this.setState((s) => ({ docEdits: { ...s.docEdits, [key]: { ...(s.docEdits[key] || {}), [S.editBlock]: tokens } }, editBlock: null, edTokens: [], edText: '', edMenu: null, edHi: 0 }));
     this.say('Line updated — the agent reads this document on its next run.');
   }
-  tokView(tk) { return { isText: tk.kind === 'text', isPerson: tk.kind === 'person', isTool: tk.kind === 'tool', isChannel: tk.kind === 'channel', v: tk.v }; }
+  // tiptap-style mention — underlined + clickable only when the name resolves to a lifecycle record
+  personRecord(name) {
+    const lf = this.state.lf;
+    return !!(lf && lf.Employees && lf.Employees.rows.some((r) => r[0].v === name));
+  }
+  openPerson(name) {
+    this.goNav('lifecycle');
+    this.setState((s) => ({ lfTab: 'Employees', lfFilters: { ...s.lfFilters, 'Employees:0': name }, lfProg: null, lfFill: null, lfFilterOpen: null, addColOpen: false }));
+  }
+  tokView(tk) {
+    const linked = tk.kind === 'person' && this.personRecord(tk.v);
+    return {
+      isText: tk.kind === 'text', isPerson: tk.kind === 'person', isTool: tk.kind === 'tool', isChannel: tk.kind === 'channel', v: tk.v,
+      open: linked ? (e) => { e.stopPropagation(); this.openPerson(tk.v); } : null,
+      deco: linked ? 'underline' : 'none', cursor: linked ? 'pointer' : 'inherit',
+    };
+  }
   docViewFor() {
     const S = this.state;
     const T = (v) => ({ kind: 'text', v }); const P = (v) => ({ kind: 'person', v }); const CH = (v) => ({ kind: 'channel', v }); const TL = (v) => ({ kind: 'tool', v });
