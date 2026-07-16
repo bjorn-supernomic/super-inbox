@@ -2,8 +2,8 @@
 import { and, eq, ne, sql } from "drizzle-orm";
 import * as v from "valibot";
 import { CASES } from "../inbox-data.js";
-import { db } from "./db/client.ts";
-import { cases, decisions } from "./db/schema.ts";
+import { db } from "./domain/client.ts";
+import { cases, decisions } from "./domain/schema.ts";
 import { emitCase } from "./events.ts";
 
 export const SignalSchema = v.object({

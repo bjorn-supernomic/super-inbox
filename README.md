@@ -15,13 +15,13 @@ Target stack and the reasoning behind it: [`docs/stack.md`](docs/stack.md).
 - **Backend** — [Flue](https://flueframework.com) app on port 4820: `src/app.ts` is a
   Hono router serving the static app, the cases API, an SSE domain-event stream
   (`/api/events`), and Flue's agent/workflow routes. Domain data lives in SQLite
-  (`data/inbox.db`) behind Drizzle (`src/db/`), seeded from `inbox-data.js` on first
+  (`data/inbox.db`) behind Drizzle (`src/domain/`), seeded from `inbox-data.js` on first
   boot; Flue state lives in `data/flue.db`.
 - **Agents** — `src/workflows/file-signal.ts`: a Flue workflow that turns incoming
   signals into fully-shaped proposed cases (durable runs, inspectable at
   `/runs/:runId`). Template-driven for now; swap `run()` internals for an LLM
   investigation when real signal sources are wired up.
-- **Migrations** — Drizzle schema (`src/db/schema.ts`) is the desired state;
+- **Migrations** — Drizzle schema (`src/domain/schema.ts`) is the desired state;
   [Atlas](https://atlasgo.io) plans and applies (`migrations/`, `atlas.hcl`).
 
 ## Run
@@ -30,7 +30,7 @@ Target stack and the reasoning behind it: [`docs/stack.md`](docs/stack.md).
 bun install
 bun run dev            # migrate + backend + frontend on http://localhost:4820
 bun run agent:demo     # file the sample signal through the file-signal workflow
-bun run db:diff        # generate a migration after editing src/db/schema.ts
+bun run db:diff        # generate a migration after editing src/domain/schema.ts
 ```
 
 ## API

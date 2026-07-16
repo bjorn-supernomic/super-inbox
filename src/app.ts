@@ -15,8 +15,8 @@ import {
   recordDecision,
   UnknownCaseError,
 } from "./cases.ts";
-import { db } from "./db/client.ts";
-import { decisions } from "./db/schema.ts";
+import { db } from "./domain/client.ts";
+import { decisions } from "./domain/schema.ts";
 import { events, type CaseEvent } from "./events.ts";
 import { LIBRARY, LIFECYCLE } from "../inbox-data.js";
 
