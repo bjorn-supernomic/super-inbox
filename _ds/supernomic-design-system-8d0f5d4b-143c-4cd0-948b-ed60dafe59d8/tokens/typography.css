@@ -1,0 +1,41 @@
+/* Supernomic — Typography tokens.
+   Two voices, one discipline: Geist 400 for everything human-facing; Geist Mono
+   12px uppercase for instrument labels (eyebrows, status, column headers).
+   Authority comes from size + negative tracking, not from bold weight. */
+:root {
+  --font-geist: 'Geist', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-geist-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Semantic family aliases */
+  --font-sans: var(--font-geist);
+  --font-mono: var(--font-geist-mono);
+
+  /* Weights — 400 is the default voice, 500 for rare emphasis */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+
+  /* Type scale — size / line-height / tracking triplets */
+  --text-caption: 12px;
+  --leading-caption: 1;
+  --tracking-caption: -0.24px;
+
+  --text-body-sm: 14px;
+  --leading-body-sm: 1.43;
+  --tracking-body-sm: 0;
+
+  --text-body: 16px;
+  --leading-body: 1.5;
+  --tracking-body: 0;
+
+  --text-heading: 36px;
+  --leading-heading: 1.1;
+  --tracking-heading: -1.12px;
+
+  --text-heading-lg: 44px;
+  --leading-heading-lg: 1.12;
+  --tracking-heading-lg: -1.1px;
+
+  --text-display: 72px;
+  --leading-display: 1;
+  --tracking-display: -2.88px;
+}

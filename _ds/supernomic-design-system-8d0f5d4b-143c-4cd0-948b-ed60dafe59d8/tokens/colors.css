@@ -1,0 +1,124 @@
+/* Supernomic — Color tokens.
+   Two neutrals (obsidian / bone), one warm gray for muted text, two functional
+   data-accents (signal orange, metric green). Chromatic color is reserved for
+   live data + status — never chrome, never button fills.
+
+   THEMING — two first-class modes:
+   Dark is the brand default. Set data-theme="light" on <html> (or ANY subtree
+   container — tokens cascade) to flip that scope to the light operator theme;
+   data-theme="dark" pins a subtree back to dark. Components only consume the
+   semantic tokens below, so both modes work everywhere. The raw palette never
+   changes between themes. In light mode the signature figure/ground inverts:
+   dark card on chalk ground instead of bone card on obsidian ground. */
+:root {
+  /* ── Raw palette (theme-invariant) — obsidian void up to bright bone ── */
+  --color-obsidian-canvas: #101010;
+  --color-carbon-lift: #1d1a18;
+  --color-ash-stroke: #3d3a39;
+  --color-graphite-mid: #4d4947;
+  --color-warm-granite: #8a8380;
+  --color-pale-stone: #b8b3b0;
+  --color-bone: #eeeeee;
+  --color-chalk: #fafafa;
+
+  /* Functional data accents — status + metrics only */
+  --color-signal-orange: #ee6018;
+  --color-metric-green: #a0ca92;
+}
+
+/* ── Semantic tokens — DARK (default) ── */
+:root, [data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg-canvas: var(--color-obsidian-canvas);
+  --bg-elevated: var(--color-carbon-lift);
+
+  /* The contrast figure — bright card on dark ground */
+  --surface-card: var(--color-bone);
+  --surface-card-elevated: var(--color-chalk);
+  --text-on-card: var(--color-obsidian-canvas);
+
+  --text-primary: var(--color-bone);
+  --text-secondary: var(--color-pale-stone);
+  --text-subtle: var(--color-pale-stone);
+  --text-muted: var(--color-warm-granite);
+
+  /* Data accents as read on this theme's surfaces */
+  --accent-live: var(--color-signal-orange);
+  --accent-positive: var(--color-metric-green);
+
+  --border-hairline: var(--color-ash-stroke);
+  --border-divider: var(--color-carbon-lift);
+  --border-focus: var(--color-bone);
+
+  --field-bg: var(--color-carbon-lift);
+  --btn-primary-bg: var(--color-carbon-lift);
+  --btn-primary-text: var(--color-bone);
+  --btn-contrast-bg: var(--color-chalk);
+  --btn-contrast-text: var(--color-obsidian-canvas);
+
+  --overlay-scrim: rgba(8,8,8,0.66);
+  --overlay-panel: var(--color-obsidian-canvas);
+
+  /* Operator surface (Action Inbox): page / panel / well + panel hairlines */
+  --surface-page: var(--color-obsidian-canvas);
+  --surface-panel: var(--color-carbon-lift);
+  --surface-well: #171514;
+  --border-panel: #262220;
+  --border-panel-strong: var(--color-ash-stroke);
+
+  --accent-requester: #3fb950;
+}
+
+/* ── Semantic tokens — LIGHT ── */
+[data-theme="light"] {
+  color-scheme: light;
+
+  --bg-canvas: var(--color-chalk);
+  --bg-elevated: #ffffff;
+
+  /* Figure/ground inverts: the signature card goes dark on chalk ground */
+  --surface-card: var(--color-obsidian-canvas);
+  --surface-card-elevated: var(--color-carbon-lift);
+  --text-on-card: var(--color-bone);
+
+  --text-primary: var(--color-obsidian-canvas);
+  --text-secondary: var(--color-graphite-mid);
+  --text-subtle: var(--color-warm-granite);
+  --text-muted: var(--color-warm-granite);
+
+  /* Deepened for readability on chalk/white */
+  --accent-live: #d4550f;
+  --accent-positive: #5d8f4c;
+
+  --border-hairline: #d6d2d0;
+  --border-divider: #e8e5e3;
+  --border-focus: var(--color-obsidian-canvas);
+
+  --field-bg: #ffffff;
+  --btn-primary-bg: var(--color-obsidian-canvas);
+  --btn-primary-text: var(--color-chalk);
+  --btn-contrast-bg: var(--color-obsidian-canvas);
+  --btn-contrast-text: var(--color-chalk);
+
+  --overlay-scrim: rgba(16,16,16,0.24);
+  --overlay-panel: #ffffff;
+
+  --surface-page: var(--color-chalk);
+  --surface-panel: #ffffff;
+  --surface-well: var(--color-bone);
+  --border-panel: #e8e5e3;
+  --border-panel-strong: #d6d2d0;
+
+  --accent-requester: #2da44e;
+}
+
+/* ── Legacy aliases (kept for compatibility — now theme-aware) ── */
+:root {
+  --text-on-light: var(--text-on-card);
+  --surface-page-light: var(--surface-page);
+  --surface-panel-light: var(--surface-panel);
+  --surface-well-light: var(--surface-well);
+  --border-light: var(--border-panel);
+  --border-light-strong: var(--border-panel-strong);
+}

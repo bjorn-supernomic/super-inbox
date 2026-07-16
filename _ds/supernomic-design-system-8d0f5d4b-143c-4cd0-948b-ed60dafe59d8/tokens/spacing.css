@@ -1,0 +1,41 @@
+/* Supernomic — Spacing, radii & layout tokens.
+   8px base grid. Comfortable density; the page breathes at 96px section gaps.
+   Minimal radii — the system is an instrument, not a soft product. */
+:root {
+  --spacing-unit: 8px;
+  --spacing-8: 8px;
+  --spacing-16: 16px;
+  --spacing-24: 24px;
+  --spacing-32: 32px;
+  --spacing-40: 40px;
+  --spacing-56: 56px;
+  --spacing-80: 80px;
+  --spacing-96: 96px;
+  --spacing-120: 120px;
+
+  /* Border radii */
+  --radius-sm: 3px;   /* buttons, nav, inputs, kbd */
+  --radius-lg: 10px;  /* cards, panels */
+  --radius-2xl: 20px; /* largest framed panels */
+
+  /* Named radii (element-level aliases) */
+  --radius-nav: 3px;
+  --radius-buttons: 3px;
+  --radius-cards: 10px;
+  --radius-largepanels: 20px;
+
+  /* Layout */
+  --page-max-width: 1200px;
+  --section-gap: 96px;
+  --card-padding: 24px;
+  --element-gap: 24px;
+
+  /* Elevation — the system has no drop shadows; depth is figure/ground.
+     The only shadow token is a hairline used for crisp separation. */
+  --shadow-hairline: 0 0 0 1px var(--color-ash-stroke);
+
+  /* Motion — short, mechanical, CLI-like */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1); /* @kind other */
+  --duration-fast: 0.15s; /* @kind other */
+  --duration-base: 0.2s; /* @kind other */
+}

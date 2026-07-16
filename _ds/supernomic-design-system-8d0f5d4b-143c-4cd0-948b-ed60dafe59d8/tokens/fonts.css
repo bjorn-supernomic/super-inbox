@@ -1,0 +1,4 @@
+/* Supernomic webfonts — Geist (interface) + Geist Mono (instrument voice).
+   Geist and Geist Mono are the real families; both are served by Google Fonts,
+   so no local binaries are shipped. Consumers get the fonts via this @import. */
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap');
