@@ -4,6 +4,24 @@ Types live in `packages/contract/index.ts` (zero-dep TypeScript, imported by web
 This doc is the behavioral half: routes, realtime, and where agents plug in.
 Derived from the full frontend inventory in `docs/INVENTORY.md`.
 
+## 0. Implementation status (post-merge with main)
+
+A vertical slice exists on main — `server.ts` (Bun + bun:sqlite, JSON-blob cases + decisions
+ledger) and `agents/worker.ts` (template-driven case filer). Implemented vs this contract:
+
+| Contract route | Today |
+|---|---|
+| `GET /api/cases` | ✅ as `GET /api/inbox` (cases + lifecycle + library in one payload) |
+| `POST /api/cases/:id/decision` | ⚠️ records ledger row + flips state to `handled` — **no `executing` phase, no playbook-step execution, no runId** |
+| `GET /api/events` (SSE) | ⚠️ 5s polling in the frontend instead |
+| `POST /api/cases` (agent intake) | ✅ (not in v1 contract — adopted into it; worker.ts is the caller) |
+| `GET /api/decisions` | ✅ ledger export (adopted; maps to the training-signal/ledger concept) |
+| dismiss, reply, steer, discussion, lifecycle enrich/columns, docs, settings, ledger export | ❌ client-side only |
+
+The wire shape today is still the prototype's display-string shape (`updated: "2m ago"`,
+`timer`, `arrival`…) — the §5 normalizations apply when `apps/web` is ported; until then the
+server keeps serving the prototype shape and the contract types describe the target.
+
 ## 1. Ownership split
 
 | Concern | Owner |

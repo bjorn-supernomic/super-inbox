@@ -64,14 +64,24 @@ at this data size.
   seam Tauri needs.
 - Electron remains possible with the same layout; Tauri preferred for footprint.
 
-## Build order (suggested)
+## Build order (updated after the main merge)
 
-1. Scaffold monorepo; port `packages/ds` (tokens + the ~15 components the inbox actually uses).
-2. Port `apps/web` from the `.dc.html` against **static contract-shaped data** (mechanical seed
-   conversion per CONTRACT.md §5) — pixel-parity checkpoint.
-3. `apps/server`: store.ts + seed + the read routes + SSE; swap web to fetch.
-4. Mutations + `execute-decision` workflow with stub tools — first real end-to-end loop
-   (approve → run → handled, live-streamed).
-5. `operator-assistant` (⌘K) and discussion investigations via `case-agent`.
-6. Lifecycle workflows, doc storage/edit, settings-policy enforcement.
+Main already shipped a slice: `server.ts` (Bun + bun:sqlite, 4 routes, seeded from
+`inbox-data.js`) + `agents/worker.ts` (template-driven intake) + frontend fetch/poll/decision-POST.
+That de-risks the store and proves the loop; the remaining order:
+
+1. **Persist what's still client-only**: discussion comments, dismiss; add `GET /api/events`
+   SSE and drop the 5s poll. Small, closes the optimistic-only gaps in today's server.ts.
+2. **Introduce Flue** (`apps/server`): port the 4 existing routes into `app.ts` (Hono),
+   `db.ts = sqlite()`, and build `execute-decision` — decision → `executing` state → real/stub
+   tool steps streamed via `useFlueWorkflow` → `handled` + ledger + training signal. This
+   replaces the fake stepper and is the first real agent milestone. (server.ts retires here;
+   Flue's Node target replaces Bun.serve — Bun stays as package manager/runner for everything else.)
+3. **LLM intake**: swap worker.ts's `buildCase` template for a Flue workflow that investigates
+   a signal and authors the full case (why, options, playbook, brain, boundary).
+4. `operator-assistant` (⌘K) and discussion investigations via `case-agent`.
+5. Settings/policy enforcement (autoRun threshold, hold classes, frontier routing) read by
+   intake + execution; lifecycle enrichment workflows; doc storage/edit.
+6. Monorepo restructure + `apps/web`/`packages/ds` port (contract-shaped wire format lands here);
+   the dc-runtime frontend keeps working against the same API until then.
 7. Channels + real tool integrations, one system at a time.
