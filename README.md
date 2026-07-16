@@ -14,3 +14,10 @@ bunx serve .
 ```
 
 then open http://localhost:3000 (needs an HTTP server — the app uses ES module imports).
+
+## Contract & architecture
+
+- `docs/INVENTORY.md` — full frontend inventory (surfaces, state, mutations, shortcuts, simulated behaviors, data model, porting notes)
+- `docs/CONTRACT.md` — frontend↔backend contract: API routes, realtime model, agent integration map
+- `docs/ARCHITECTURE.md` — Turborepo monorepo plan, Flue backend, SQLite decision, Tauri path
+- `packages/contract/` — the typed contract (`@super-inbox/contract`), imported by web and server
