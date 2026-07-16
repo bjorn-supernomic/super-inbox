@@ -78,7 +78,7 @@
       <aside style="width:232px;flex:none;border-right:1px solid var(--border-light);background:var(--surface-page-light);display:flex;flex-direction:column;padding:18px 0 14px;" data-screen-label="Navigation rail">
         <div style="font-family:var(--font-geist-mono);letter-spacing:-0.24px;font-size:10px;text-transform:uppercase;color:var(--text-muted);padding:0 20px 10px;">Workspace</div>
         <sc-for list="{{ navItems }}" as="nv" hint-placeholder-count="4">
-          <span onClick="{{ nv.onClick }}" style="display:flex;align-items:center;gap:10px;padding:9px 20px;cursor:pointer;background:{{ nv.bg }};" style-hover="background:var(--surface-well-light);" data-comment-anchor="805be3f852-span">
+          <span onClick="{{ nv.onClick }}" style="display:flex;align-items:center;gap:10px;padding:9px 20px;cursor:pointer;background:{{ nv.bg }};" style-hover="background:var(--surface-well-light) !important;" data-comment-anchor="805be3f852-span">
             <span style="width:5px;height:5px;border-radius:50%;background:{{ nv.dot }};flex:none;"></span>
             <span style="flex:1;min-width:0;">
               <span style="display:block;font-size:13px;letter-spacing:-0.13px;color:{{ nv.color }};">{{ nv.label }}</span>
@@ -183,7 +183,7 @@
               <div style="margin-top:24px;">
                 <x-import component-from-global-scope="SupernomicDesignSystem_8d0f5d.DecisionStack" hint-size="100%,320px">
                   <sc-for list="{{ options }}" as="o" hint-placeholder-count="3">
-                    <div style="cursor:pointer;background:{{ o.bg }};border-left:2px solid {{ o.edge }};border-top:1px solid {{ o.divider }};transition:background-color 0.15s cubic-bezier(0.4,0,0.2,1),border-left-color 0.15s cubic-bezier(0.4,0,0.2,1);" style-hover="background:var(--surface-well-light);border-left-color:var(--text-primary);">
+                    <div style="cursor:pointer;background:{{ o.bg }};border-left:2px solid {{ o.edge }};border-top:1px solid {{ o.divider }};transition:background-color 0.15s cubic-bezier(0.4,0,0.2,1),border-left-color 0.15s cubic-bezier(0.4,0,0.2,1);" style-hover="background:var(--surface-well-light) !important;border-left-color:var(--text-primary) !important;">
                       <x-import component-from-global-scope="SupernomicDesignSystem_8d0f5d.DecisionOption" kind="{{ o.kind }}" title="{{ o.title }}" desc="{{ o.desc }}" keys="{{ o.keys }}" selected="{{ o.selected }}" onSelect="{{ o.choose }}" hint-size="100%,64px"></x-import>
                     </div>
                   </sc-for>
@@ -301,7 +301,7 @@
                     <div style="display:flex;align-items:center;gap:10px;margin:20px 0 10px;"><span style="font-family:var(--font-geist-mono);letter-spacing:-0.24px;font-size:11px;text-transform:uppercase;color:var(--text-muted);flex:none;">Related threads</span><span style="flex:1;height:1px;background:var(--border-light);"></span></div>
                     <div style="display:flex;flex-direction:column;gap:4px;">
                       <sc-for list="{{ priorList }}" as="p" hint-placeholder-count="2">
-                        <div onClick="{{ p.open }}" title="Open side-by-side" style="padding:9px 10px;margin:0 -10px;border-radius:6px;cursor:pointer;background:{{ p.bg }};" style-hover="background:var(--surface-well-light);">
+                        <div onClick="{{ p.open }}" title="Open side-by-side" style="padding:9px 10px;margin:0 -10px;border-radius:6px;cursor:pointer;background:{{ p.bg }};" style-hover="background:var(--surface-well-light) !important;">
                           <div style="display:flex;align-items:baseline;gap:8px;">
                             <span style="font-family:var(--font-geist-mono);letter-spacing:-0.24px;font-size:11px;color:var(--text-secondary);flex:none;">{{ p.id }}</span>
                             <span style="flex:1;min-width:0;font-size:12.5px;letter-spacing:-0.13px;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ p.title }}</span>
@@ -862,7 +862,9 @@ class Component extends DCLogic {
     super(props);
     let theme = 'light';
     try { theme = window.localStorage.getItem('sn-agent-inbox-theme') || 'light'; } catch (e) {}
-    this.state = { cases: [], lf: null, lib: null, active: 'inbox', openTabs: ['ACT-1049'], sheet: 'Needs', sort: 'Arrival', meterMode: 'Confidence', focus: 0, whyOpen: false, srcOpen: false, selectedById: {}, extraState: {}, panelTab: null, toast: null, theme, paletteOpen: false, pq: '', pHi: 0, thread: [], thinking: false, spin: 0, doneFx: null, disc: {}, discReply: null, discText: '', discTyping: null, sidebarOpen: !!(props.sidebarStartsOpen ?? false), historyOpen: false, hist: [], lfTab: 'Employees', lfProg: null, docType: null, docId: null, docExtra: {}, docEdits: {}, editBlock: null, edTokens: [], edText: '', edMenu: null, edHi: 0, lfCustom: {}, lfFill: null, addColOpen: false, addColText: '', lfFilters: {}, lfFilterOpen: null, evExpanded: false, split: null, splitW: 420, libQ: '', settings: { autoRun: 92, holdIdentity: true, holdMoney: true, holdExternal: true, frontier: true, fd: { TechOps: true, Finance: true, Procurement: true }, recApplied: false, recDismissed: false, escalation: 'Slack', digest: 'Daily', slaWarn: 25 } };
+    let glimm = { palette: 'ember', easing: 'easeOutQuart', direction: 'ltr', sweepMs: 800, bandTight: 14 };
+    try { glimm = { ...glimm, ...JSON.parse(window.localStorage.getItem('sn-glimm-opts') || '{}') }; } catch (e) {}
+    this.state = { cases: [], lf: null, lib: null, active: 'inbox', openTabs: ['ACT-1049'], sheet: 'Needs', sort: 'Arrival', meterMode: 'Confidence', focus: 0, whyOpen: false, srcOpen: false, selectedById: {}, extraState: {}, panelTab: null, toast: null, theme, paletteOpen: false, pq: '', pHi: 0, thread: [], thinking: false, spin: 0, doneFx: null, disc: {}, discReply: null, discText: '', discTyping: null, sidebarOpen: !!(props.sidebarStartsOpen ?? false), historyOpen: false, hist: [], lfTab: 'Employees', lfProg: null, docType: null, docId: null, docExtra: {}, docEdits: {}, editBlock: null, edTokens: [], edText: '', edMenu: null, edHi: 0, lfCustom: {}, lfFill: null, addColOpen: false, addColText: '', lfFilters: {}, lfFilterOpen: null, evExpanded: false, split: null, splitW: 420, libQ: '', settings: { autoRun: 92, holdIdentity: true, holdMoney: true, holdExternal: true, frontier: true, fd: { TechOps: true, Finance: true, Procurement: true }, recApplied: false, recDismissed: false, escalation: 'Slack', digest: 'Daily', slaWarn: 25, glimm } };
     this.addColRefCb = (el) => { if (el && this._focusAddCol) { this._focusAddCol = false; el.focus(); } };
     this.filterRefCb = (el) => { if (el && this._focusFilter) { this._focusFilter = false; el.focus(); } };
     this.libSearchEl = null;
@@ -908,10 +910,15 @@ class Component extends DCLogic {
   // Live refresh — merge server cases in; local discussion state is kept,
   // only unseen case ids get a fresh disc entry.
   refreshCases() {
+    if (this._sweeping) return;
     fetch('/api/inbox')
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d) => {
-        if (!d) return;
+      .then((r) => (r.ok ? r.text() : null))
+      .then((t) => {
+        // Only re-render when the server actually has something new — a full
+        // tree render every poll reads as general lagginess.
+        if (!t || t === this._lastInbox || this._sweeping) return;
+        this._lastInbox = t;
+        const d = JSON.parse(t);
         this.setState((s) => {
           const cases = d.cases.map((c) => this.normCase(c));
           const disc = { ...s.disc };
@@ -1090,7 +1097,11 @@ class Component extends DCLogic {
     const c = this.merged().find((x) => x.id === id);
     if (c) this.pushHist('case', id, `${c.id} — ${c.title}`);
     const brain = withBrain || (this.props.autoOpenBrain ?? false);
-    this.setState((s) => ({ openTabs: s.openTabs.includes(id) ? s.openTabs : [...s.openTabs, id], active: id, whyOpen: false, srcOpen: false, historyOpen: false, evExpanded: false, split: null, panelTab: brain ? 'Brain' : null }));
+    this.setState((s) => ({ openTabs: s.openTabs.includes(id) ? s.openTabs : [...s.openTabs, id], active: id, whyOpen: false, srcOpen: false, historyOpen: false, evExpanded: false, split: null, panelTab: brain ? 'Brain' : null }), () => {
+      // Land at the top of the new case, not at the previous scroll depth.
+      const el = document.querySelector('[data-screen-label="Case"] > div');
+      if (el) el.scrollTop = 0;
+    });
   }
   closeTab(id) { this.setState((s) => ({ openTabs: s.openTabs.filter((x) => x !== id), active: s.active === id ? 'inbox' : s.active })); }
   // Persist the operator's decision when a backend is around; the UI is
@@ -1116,21 +1127,33 @@ class Component extends DCLogic {
   // DS signal-orange. cb runs at the sweep midpoint, when the band covers
   // the content — that's when the view swaps.
   sweep(cb) {
-    if (window.__glimmSweep) { window.__glimmSweep(cb); return; }
+    const g = this.state.settings.glimm || {};
+    const ms = g.sweepMs || 700;
+    // Freeze background churn while the band is on screen — re-renders of the
+    // full tree compete with the shader's animation frames and read as jank.
+    this._sweeping = true;
+    window.setTimeout(() => { this._sweeping = false; }, ms + 700);
+    if (window.__glimmSweep) {
+      window.__glimmSweep(cb, { palette: g.palette, easing: g.easing, direction: g.direction, sweepMs: g.sweepMs, bandTight: g.bandTight, brightness: 0.95 });
+      return;
+    }
     const band = document.createElement('div');
     band.style.cssText = 'position:fixed;top:0;bottom:0;width:36vw;left:-40vw;z-index:200;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(238,96,24,0.14) 32%,rgba(238,96,24,0.34) 50%,rgba(238,96,24,0.14) 68%,transparent);';
     document.body.appendChild(band);
-    const anim = band.animate([{ left: '-40vw' }, { left: '110vw' }], { duration: 700, easing: 'cubic-bezier(0.65,0,0.35,1)' });
-    window.setTimeout(() => { try { cb && cb(); } catch (e) {} }, 350);
+    const anim = band.animate([{ left: '-40vw' }, { left: '110vw' }], { duration: ms, easing: 'cubic-bezier(0.65,0,0.35,1)' });
+    window.setTimeout(() => { try { cb && cb(); } catch (e) {} }, ms / 2);
     anim.onfinish = () => band.remove();
-    window.setTimeout(() => band.remove(), 1500);
+    window.setTimeout(() => band.remove(), ms + 800);
   }
   choose(i) {
     const c = this.cur(); if (!c || c.state !== 'needs') return;
     const steps = c.brain.playbook.steps;
     const start = Math.max(steps.findIndex((s) => s.state === 'held' || s.state === 'current'), 0);
     this.setState((s) => ({ selectedById: { ...s.selectedById, [c.id]: i }, extraState: { ...s.extraState, [c.id]: { state: 'executing', dot: 'pending', execStep: start } } }));
-    this.startSpin();
+    // Spinner re-renders the whole tree every 120ms — hold it until the sweep
+    // has left the screen so the shader gets clean frames.
+    const sweepDone = 420 + ((this.state.settings.glimm || {}).sweepMs || 700) + 500;
+    window.setTimeout(() => { const ex = this.state.extraState[c.id]; if (ex && ex.state === 'executing') this.startSpin(); }, sweepDone);
     this.say(`${c.options[i].title} — recorded. ${c.path[0]} is executing.`);
     this.recordDecision(c.id, i, c.options[i].title);
     window.setTimeout(() => this.sweep(() => this.nextCase()), 420);
@@ -1448,6 +1471,19 @@ class Component extends DCLogic {
     const move = (ev) => { const cap = Math.max(280, Math.min(640, window.innerWidth - 780)); this.setState({ splitW: Math.min(cap, Math.max(280, startW + (startX - ev.clientX))) }); };
     const up = () => { window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', up); };
     window.addEventListener('mousemove', move); window.addEventListener('mouseup', up);
+  }
+  // Transition playground: every change persists and immediately plays a
+  // preview sweep so tuning is see-as-you-go.
+  setGlimm(key, val) {
+    this.setState((s) => {
+      const glimm = { ...s.settings.glimm, [key]: val };
+      try { window.localStorage.setItem('sn-glimm-opts', JSON.stringify(glimm)); } catch (e) {}
+      return { settings: { ...s.settings, glimm } };
+    }, () => this.sweep());
+  }
+  stepGlimm(key, delta, min, max) {
+    const v = Math.min(max, Math.max(min, this.state.settings.glimm[key] + delta));
+    if (v !== this.state.settings.glimm[key]) this.setGlimm(key, v);
   }
   stepSetting(key, delta, min, max, msg) {
     const v = Math.min(max, Math.max(min, this.state.settings[key] + delta));
@@ -1845,6 +1881,20 @@ class Component extends DCLogic {
         { label: 'Digest', desc: 'sent 08:00', isSeg: true, opts: segOpts(['Daily', 'Weekly', 'Off'], st.digest, (o) => this.setState((s) => ({ settings: { ...s.settings, digest: o } }))) },
         { label: 'SLA warning', desc: 'warn when this much of the SLA remains', isStep: true, value: `${st.slaWarn}%`, dec: () => this.stepSetting('slaWarn', -5, 5, 75, null), inc: () => this.stepSetting('slaWarn', 5, 5, 75, null) },
       ] },
+      { index: '05', label: 'Transition', rows: (() => {
+        const g = st.glimm;
+        const easings = [['Snap', 'snap'], ['Out quart', 'easeOutQuart'], ['In-out cubic', 'easeInOutCubic'], ['Back', 'back']];
+        const dirs = [['Left → right', 'ltr'], ['Right → left', 'rtl'], ['Top ↓', 'ttb'], ['Bottom ↑', 'btt']];
+        const seg = (pairs, cur, key) => segOpts(pairs.map((p) => p[0]), (pairs.find((p) => p[1] === cur) || pairs[0])[0], (label) => this.setGlimm(key, pairs.find((p) => p[0] === label)[1]));
+        return [
+          { label: 'Palette', desc: 'decision sweep colors — changes preview instantly', isSeg: true, opts: segOpts(['prism', 'berry', 'lagoon', 'citrus', 'azure', 'ember'], g.palette, (o) => this.setGlimm('palette', o)) },
+          { label: 'Easing', desc: 'front-loaded feels snappy, symmetric feels composed', isSeg: true, opts: seg(easings, g.easing, 'easing') },
+          { label: 'Direction', desc: 'sweep axis and side', isSeg: true, opts: seg(dirs, g.direction, 'direction') },
+          { label: 'Speed', desc: 'band traversal time', isStep: true, value: `${g.sweepMs}ms`, dec: () => this.stepGlimm('sweepMs', -100, 300, 1500), inc: () => this.stepGlimm('sweepMs', 100, 300, 1500) },
+          { label: 'Band width', desc: 'lower is wider and softer', isStep: true, value: `${g.bandTight}`, dec: () => this.stepGlimm('bandTight', -2, 4, 24), inc: () => this.stepGlimm('bandTight', 2, 4, 24) },
+          { label: 'Preview', desc: 'play the sweep with the current settings', isBtn: true, btnLabel: 'Play sweep', onBtn: () => this.sweep() },
+        ];
+      })() },
     ];
     setGroups.forEach((g) => g.rows.forEach((r) => { r.rowBorder = r.hasSub ? 'transparent' : 'var(--border-light)'; }));
 

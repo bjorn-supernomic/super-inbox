@@ -9,7 +9,9 @@ import { GlimmProvider, useGlimm } from 'glimm/react';
 function Bridge() {
   const { sweep } = useGlimm();
   React.useEffect(() => {
-    window.__glimmSweep = (onMidpoint) => sweep(() => { if (onMidpoint) onMidpoint(); });
+    // opts: per-call SweepOptions overrides (palette, easing, direction,
+    // sweepMs, bandTight, …) — the app's Transition settings pass through here.
+    window.__glimmSweep = (onMidpoint, opts) => sweep(() => { if (onMidpoint) onMidpoint(); }, opts || undefined);
     return () => { delete window.__glimmSweep; };
   }, [sweep]);
   return null;
