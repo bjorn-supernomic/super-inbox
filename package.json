@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "bun run server.ts",
     "agent:demo": "bun run agents/worker.ts --demo",
+    "agent:testset": "bun run agents/run-testset.ts",
     "build:toolbar": "bun build agentation-src.jsx --outfile agentation-toolbar.js --minify --define process.env.NODE_ENV='\"production\"'",
     "build:glimm": "bun build glimm-src.jsx --outfile glimm-sweep.js --minify --define process.env.NODE_ENV='\"production\"'"
   },

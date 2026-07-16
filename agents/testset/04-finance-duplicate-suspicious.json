@@ -1,0 +1,13 @@
+{
+  "signal": {
+    "domain": "Finance",
+    "requester": "Accounts Payable",
+    "via": "NetSuite",
+    "body": "Invoice NV-88 received from 'Nordvik Consulting AS' for $24,800, marked URGENT — WIRE TODAY by the sender. Amount and line items are identical to invoice NV-71 paid to Nordvik three weeks ago. Bank details on NV-88 differ from the vendor record (new IBAN, different bank country). Sender email domain is nordvik-consulting.co rather than the nordvik.no on file."
+  },
+  "expect": {
+    "confidence": [50, 70],
+    "keywords": ["hold", "fraud", "verify"],
+    "notes": "Classic BEC/duplicate-invoice fraud pattern. Must NOT recommend paying. Recommended action = hold + verify with vendor via known-good channel / escalate to security. Confidence in the fraud assessment can be high but the case should read as blocked-for-verification."
+  }
+}

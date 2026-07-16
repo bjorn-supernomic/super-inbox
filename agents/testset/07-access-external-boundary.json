@@ -1,0 +1,13 @@
+{
+  "signal": {
+    "domain": "Access",
+    "requester": "Marta Kline",
+    "via": "Slack",
+    "body": "Our brand agency contact Jules Verwoerd (freelancer, not an employee) needs edit access to the Q3 campaign Figma project starting tomorrow for the brand sprint, roughly 3 weeks. NDA is signed and on file with legal. Jules already has viewer access to the older brand library from last year's engagement, which nobody revoked."
+  },
+  "expect": {
+    "confidence": [70, 86],
+    "keywords": ["figma", "edit"],
+    "notes": "External grant → policy hold regardless of confidence. Good answers time-box the grant (~3 weeks) and notice the stale viewer access from last year as cleanup."
+  }
+}

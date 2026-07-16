@@ -1,0 +1,13 @@
+{
+  "signal": {
+    "domain": "TechOps",
+    "requester": "Dana Mol",
+    "via": "Slack",
+    "body": "Off-boarding sweep flagged that contractor Tomas Vrana, whose engagement ended last Friday, still has an active GitHub PAT with write access to two production repos, and the token was used 2 hours ago from an unrecognized ASN. HR confirms the departure. Deploy keys for those repos rotate monthly and last rotated 26 days ago."
+  },
+  "expect": {
+    "confidence": [72, 90],
+    "keywords": ["revoke"],
+    "notes": "Urgent revocation with an anomaly (post-departure token use). Recommended = revoke access now; strong answers also rotate the deploy keys early and flag the 2h-ago usage for investigation rather than assuming CI."
+  }
+}

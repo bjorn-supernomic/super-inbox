@@ -1,0 +1,13 @@
+{
+  "signal": {
+    "domain": "Procurement",
+    "requester": "Renewals",
+    "via": "NetSuite",
+    "body": "Confluence auto-renews at 200 seats on Aug 2 at $9.10/seat/mo. 90-day usage shows 121 active users, flat since March. Vendor offered 130 seats at $8.40 with a 2-year lock, or month-to-month at list. Legal owns 6 of the inactive seats for records retention."
+  },
+  "expect": {
+    "confidence": [75, 90],
+    "keywords": ["130", "seats"],
+    "notes": "True-down with a wrinkle (legal retention seats). Recommendation should counter near 130 seats and mention the savings; a good answer accounts for the 6 retention seats inside the 130."
+  }
+}

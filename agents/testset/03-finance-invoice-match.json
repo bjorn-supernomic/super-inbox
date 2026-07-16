@@ -1,0 +1,13 @@
+{
+  "signal": {
+    "domain": "Finance",
+    "requester": "Accounts Payable",
+    "via": "NetSuite",
+    "body": "Three-way match exception on INV-3382 from Studio Norr: invoice total $13,750 vs PO-2210 total $12,500. Vendor references change order CO-118 signed by the PO owner's delegate on May 12 covering additional brand assets ($1,250). Delegate authority for that week is on file. Payment terms net-30, due in 4 days."
+  },
+  "expect": {
+    "confidence": [80, 93],
+    "keywords": ["release", "amended"],
+    "notes": "Documented change order reconciles the delta exactly. Should recommend releasing against amended total; alternative = re-confirm with PO owner."
+  }
+}

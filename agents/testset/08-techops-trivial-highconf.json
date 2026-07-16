@@ -1,0 +1,13 @@
+{
+  "signal": {
+    "domain": "TechOps",
+    "requester": "People ops",
+    "via": "HiBob",
+    "body": "New hire record complete: Aisha Demir, Data Analyst, Analytics team, starts next Monday. Standard analyst provisioning requested: Okta account, email, Slack, Snowflake reader role, and a MacBook Air from inventory (4 in stock). Role template 'Analyst v2' matches, used 31 times, zero exceptions."
+  },
+  "expect": {
+    "confidence": [88, 97],
+    "keywords": ["provision", "aisha"],
+    "notes": "Near-mechanical: proven role template, everything in stock. This is the high-confidence end — held only because it's a first run for this operator's policy or above-threshold check. Title should name Aisha, not be generic."
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "signal": {
+    "domain": "TechOps",
+    "requester": "Ben Adler",
+    "via": "Slack",
+    "body": "hey my laptop is being weird again, stuff keeps not working. can someone fix it. also I think I need access to the thing marketing uses?"
+  },
+  "expect": {
+    "confidence": [50, 72],
+    "keywords": ["clarif", "detail"],
+    "notes": "Vague signal: two unrelated half-requests, no specifics. Confidence must be low; recommended action should be asking for specifics or triage, NOT provisioning 'the thing marketing uses'."
+  }
+}

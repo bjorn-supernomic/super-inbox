@@ -1,0 +1,13 @@
+{
+  "signal": {
+    "domain": "TechOps",
+    "requester": "Priya Nair",
+    "via": "Zendesk",
+    "body": "Ticket ZD-7791: I'm locked out of Okta after swapping to my new MacBook this morning. MFA won't accept the new device. My manager Leah Chen already confirmed the device migration on the ticket, and the laptop passed Iru compliance at 07:41. Need access before my 10:00 incident review."
+  },
+  "expect": {
+    "confidence": [78, 92],
+    "keywords": ["unlock", "okta"],
+    "notes": "Happy path: identity verified, manager confirmed, device compliant. Recommended action should be unlock + password reset; cautious alternative should exist but not dominate."
+  }
+}
