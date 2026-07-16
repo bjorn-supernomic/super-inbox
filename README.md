@@ -13,17 +13,25 @@ repo: [bjorn-supernomic/super-inbox](https://github.com/bjorn-supernomic/super-i
 - **Backend** — `server.ts`: Bun server on port 4820 (override with `PORT`). Serves the
   static app plus the cases API, persisted in SQLite (`data/inbox.db`, seeded from
   `inbox-data.js` on first boot).
-- **Agents** — `agents/worker.ts`: turns incoming signals into fully-shaped proposed
-  cases and files them through the API. Template-driven for now; swap `buildCase` for
-  an LLM investigation when real signal sources are wired up.
+- **Agents** — two paths, sharing the case assembly in `agents/case-shape.ts`:
+  - `src/workflows/investigate-signal.ts` — the real agent, a [Flue](https://flueframework.com)
+    workflow: an LLM investigates the raw signal as the domain agent and files a
+    complete case (title, proposal, confidence, why, options, playbook steps, scope)
+    held for operator approval. Needs `ANTHROPIC_API_KEY` in `.env`
+    (or `FLUE_MODEL` for another provider).
+  - `agents/worker.ts` — deterministic offline fallback fed by signal JSONs.
 
 ## Run
 
 ```sh
 bun install
 bun run dev            # backend + frontend on http://localhost:4820
-bun run agent:demo     # file a sample case through the API
+bun run agent:demo     # file a sample case through the API (no LLM)
 bun run agents/worker.ts agents/signals/example.json
+
+# the real agent — LLM investigation via Flue:
+echo 'ANTHROPIC_API_KEY="sk-ant-..."' > .env
+bunx flue run investigate-signal --input '{"domain":"TechOps","requester":"Mara Voss","via":"Zendesk","body":"VPN cert for the Berlin gateway expires in 9 days. Ticket ZD-9104."}'
 ```
 
 ## API

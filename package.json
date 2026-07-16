@@ -9,9 +9,14 @@
     "build:glimm": "bun build glimm-src.jsx --outfile glimm-sweep.js --minify --define process.env.NODE_ENV='\"production\"'"
   },
   "devDependencies": {
+    "@flue/cli": "^1.0.0-beta.9",
     "agentation": "3.0.2",
     "glimm": "0.3.0",
     "react": "18.3.1",
     "react-dom": "18.3.1"
+  },
+  "dependencies": {
+    "@flue/runtime": "^1.0.0-beta.9",
+    "valibot": "^1.4.2"
   }
 }
