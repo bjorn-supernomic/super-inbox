@@ -27,6 +27,10 @@
     @keyframes snPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
     [data-pen] { opacity: 0; transition: opacity 0.12s ease; }
     [data-editrow]:hover [data-pen] { opacity: 0.5; }
+    /* DS components style inline and ship no :hover rules — give every
+       pointer-interactive import (tabs, rows, options) a hover affordance.
+       !important is required to beat the components' inline styles. */
+    .sc-host-x > [style*="cursor: pointer"]:hover { background-color: rgba(127, 127, 127, 0.12) !important; }
   </style>
 </helmet>
 <div style="position:fixed;inset:0;display:flex;flex-direction:column;background:var(--surface-page-light);color:var(--text-primary);font-family:var(--font-geist);">
