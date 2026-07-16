@@ -20,6 +20,9 @@
     html, body { margin: 0; height: 100%; }
     a { color: var(--text-primary); } a:hover { color: var(--text-secondary); }
     @keyframes snRise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    /* Centered elements need the X offset inside the animated transform,
+       or the animation overrides translateX(-50%) and the element jumps. */
+    @keyframes snRiseCentered { from { opacity: 0; transform: translate(-50%, 6px); } to { opacity: 1; transform: translate(-50%, 0); } }
     @keyframes snPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
     [data-pen] { opacity: 0; transition: opacity 0.12s ease; }
     [data-editrow]:hover [data-pen] { opacity: 0.5; }
@@ -810,7 +813,7 @@
   </div>
 
   <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
-    <div style="position:absolute;left:50%;transform:translateX(-50%);bottom:72px;background:var(--surface-card);color:var(--text-on-card);font-family:var(--font-geist-mono);font-size:12px;letter-spacing:-0.24px;padding:11px 18px;border-radius:var(--radius-sm);z-index:60;animation:snRise 0.18s cubic-bezier(0.4,0,0.2,1);">{{ toast }}</div>
+    <div style="position:absolute;left:50%;transform:translateX(-50%);bottom:72px;background:var(--surface-card);color:var(--text-on-card);font-family:var(--font-geist-mono);font-size:12px;letter-spacing:-0.24px;padding:11px 18px;border-radius:var(--radius-sm);z-index:60;animation:snRiseCentered 0.18s cubic-bezier(0.4,0,0.2,1);">{{ toast }}</div>
   </sc-if>
 
   <sc-if value="{{ showAskButton }}" hint-placeholder-val="{{ true }}">
@@ -889,12 +892,32 @@ class Component extends DCLogic {
     // under any dumb file server.
     fetch('/api/inbox')
       .then((r) => { if (!r.ok) throw new Error(String(r.status)); return r.json(); })
-      .then((d) => apply({ CASES: d.cases, LIFECYCLE: d.lifecycle, LIBRARY: d.library }))
+      .then((d) => {
+        apply({ CASES: d.cases, LIFECYCLE: d.lifecycle, LIBRARY: d.library });
+        // ponytail: 5s polling; switch to SSE if the inbox ever needs sub-second freshness
+        this._poll = window.setInterval(() => this.refreshCases(), 5000);
+      })
       .catch(() => import('./inbox-data.js').then(apply));
     this.onKey = (e) => this.handleKey(e);
     window.addEventListener('keydown', this.onKey);
   }
-  componentWillUnmount() { window.removeEventListener('keydown', this.onKey); if (this._spin) window.clearInterval(this._spin); if (this._done) window.clearInterval(this._done); if (this._doneLoop) window.clearInterval(this._doneLoop); }
+  componentWillUnmount() { window.removeEventListener('keydown', this.onKey); if (this._spin) window.clearInterval(this._spin); if (this._done) window.clearInterval(this._done); if (this._doneLoop) window.clearInterval(this._doneLoop); if (this._poll) window.clearInterval(this._poll); }
+
+  // Live refresh — merge server cases in; local discussion state is kept,
+  // only unseen case ids get a fresh disc entry.
+  refreshCases() {
+    fetch('/api/inbox')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!d) return;
+        this.setState((s) => {
+          const disc = { ...s.disc };
+          d.cases.forEach((c) => { if (!(c.id in disc)) disc[c.id] = this.normDisc(c.discussion); });
+          return { cases: d.cases, disc };
+        });
+      })
+      .catch(() => {});
+  }
 
   agent() { return this.props.agentName ?? 'Ragnar'; }
 
