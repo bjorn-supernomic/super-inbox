@@ -26,14 +26,16 @@ for (const f of files) {
     stdout: "pipe",
     stderr: "pipe",
   });
-  const out = await new Response(proc.stdout).text();
-  const err = await new Response(proc.stderr).text();
+  const strip = (s: string) => s.replace(/\x1b\[[0-9;?]*[A-Za-z]/g, "").replace(/\r/g, "");
+  const out = strip(await new Response(proc.stdout).text());
+  const err = strip(await new Response(proc.stderr).text());
   if ((await proc.exited) !== 0) {
     console.log(`  RUN FAILED\n${(err || out).split("\n").slice(-6).join("\n")}`);
     flags++;
     continue;
   }
-  const json = out.match(/\{[^]*\}/)?.[0];
+  // flue prints the workflow result as the last JSON object in stdout
+  const json = [...out.matchAll(/\{[^{}]*"id"[^{}]*\}/g)].at(-1)?.[0];
   const result = json ? (JSON.parse(json) as { id: string; title: string; confidence: number }) : null;
   if (!result) { console.log("  could not parse result:", out.slice(-200)); flags++; continue; }
 
