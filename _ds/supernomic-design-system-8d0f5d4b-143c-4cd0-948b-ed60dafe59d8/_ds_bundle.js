@@ -437,7 +437,12 @@ function QuoteBlock({
       alignItems: 'center',
       gap: 6
     }
-  }, /*#__PURE__*/React.createElement("span", {
+  }, (() => {
+    const dom = { okta: 'okta.com', zendesk: 'zendesk.com', github: 'github.com', figma: 'figma.com', slack: 'slack.com', netsuite: 'netsuite.com', docusign: 'docusign.com', expensify: 'expensify.com', miro: 'miro.com', jira: 'atlassian.com', linear: 'linear.app', aws: 'amazon.com', hibob: 'hibob.com' }[String(via).toLowerCase()];
+    return dom ? /*#__PURE__*/React.createElement("span", {
+      className: 'sn-app-logo',
+      style: { width: 12, height: 12, flex: 'none', background: `url('https://img.logo.dev/${dom}?token=pk_X-1ZO13GSgeOoUrIuJ6GMQ&size=48&format=png&greyscale=true') center / contain no-repeat`, filter: 'grayscale(1)', opacity: 0.9 }
+    }) : /*#__PURE__*/React.createElement("span", {
     style: {
       width: 6,
       height: 6,
@@ -445,7 +450,8 @@ function QuoteBlock({
       transform: 'rotate(45deg)',
       background: 'var(--color-signal-orange)'
     }
-  }), via), route && /*#__PURE__*/React.createElement("span", {
+  });
+  })(), via), route && /*#__PURE__*/React.createElement("span", {
     style: {
       ...mono,
       fontSize: 14,
