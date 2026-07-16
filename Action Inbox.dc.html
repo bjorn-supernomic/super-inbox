@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="./support.js"></script>
 <script type="module" src="./agentation-toolbar.js"></script>
+<script type="module" src="./glimm-sweep.js"></script>
 </head>
 <body>
 <x-dc>
@@ -20,6 +21,9 @@
     html, body { margin: 0; height: 100%; }
     a { color: var(--text-primary); } a:hover { color: var(--text-secondary); }
     @keyframes snRise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    /* Centered elements need the X offset inside the animated transform,
+       or the animation overrides translateX(-50%) and the element jumps. */
+    @keyframes snRiseCentered { from { opacity: 0; transform: translate(-50%, 6px); } to { opacity: 1; transform: translate(-50%, 0); } }
     @keyframes snPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
     [data-pen] { opacity: 0; transition: opacity 0.12s ease; }
     [data-editrow]:hover [data-pen] { opacity: 0.5; }
@@ -179,7 +183,7 @@
               <div style="margin-top:24px;">
                 <x-import component-from-global-scope="SupernomicDesignSystem_8d0f5d.DecisionStack" hint-size="100%,320px">
                   <sc-for list="{{ options }}" as="o" hint-placeholder-count="3">
-                    <div style="cursor:pointer;border-left:2px solid transparent;border-top:1px solid {{ o.divider }};transition:background-color 0.15s cubic-bezier(0.4,0,0.2,1),border-left-color 0.15s cubic-bezier(0.4,0,0.2,1);" style-hover="background:var(--surface-well-light);border-left-color:var(--text-primary);">
+                    <div style="cursor:pointer;background:{{ o.bg }};border-left:2px solid {{ o.edge }};border-top:1px solid {{ o.divider }};transition:background-color 0.15s cubic-bezier(0.4,0,0.2,1),border-left-color 0.15s cubic-bezier(0.4,0,0.2,1);" style-hover="background:var(--surface-well-light);border-left-color:var(--text-primary);">
                       <x-import component-from-global-scope="SupernomicDesignSystem_8d0f5d.DecisionOption" kind="{{ o.kind }}" title="{{ o.title }}" desc="{{ o.desc }}" keys="{{ o.keys }}" selected="{{ o.selected }}" onSelect="{{ o.choose }}" hint-size="100%,64px"></x-import>
                     </div>
                   </sc-for>
@@ -810,7 +814,7 @@
   </div>
 
   <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
-    <div style="position:absolute;left:50%;transform:translateX(-50%);bottom:72px;background:var(--surface-card);color:var(--text-on-card);font-family:var(--font-geist-mono);font-size:12px;letter-spacing:-0.24px;padding:11px 18px;border-radius:var(--radius-sm);z-index:60;animation:snRise 0.18s cubic-bezier(0.4,0,0.2,1);">{{ toast }}</div>
+    <div style="position:absolute;left:50%;transform:translateX(-50%);bottom:72px;background:var(--surface-card);color:var(--text-on-card);font-family:var(--font-geist-mono);font-size:12px;letter-spacing:-0.24px;padding:11px 18px;border-radius:var(--radius-sm);z-index:60;animation:snRiseCentered 0.18s cubic-bezier(0.4,0,0.2,1);">{{ toast }}</div>
   </sc-if>
 
   <sc-if value="{{ showAskButton }}" hint-placeholder-val="{{ true }}">
@@ -880,15 +884,41 @@ class Component extends DCLogic {
   }
   componentDidMount() {
     document.documentElement.dataset.theme = this.state.theme;
-    import('./inbox-data.js').then((m) => {
+    const apply = (m) => {
       const disc = {};
       m.CASES.forEach((c) => { disc[c.id] = this.normDisc(c.discussion); });
       this.setState({ cases: m.CASES, disc, lf: m.LIFECYCLE, lib: m.LIBRARY });
-    });
+    };
+    // Backend when present; the static module keeps the page self-contained
+    // under any dumb file server.
+    fetch('/api/inbox')
+      .then((r) => { if (!r.ok) throw new Error(String(r.status)); return r.json(); })
+      .then((d) => {
+        apply({ CASES: d.cases, LIFECYCLE: d.lifecycle, LIBRARY: d.library });
+        // ponytail: 5s polling; switch to SSE if the inbox ever needs sub-second freshness
+        this._poll = window.setInterval(() => this.refreshCases(), 5000);
+      })
+      .catch(() => import('./inbox-data.js').then(apply));
     this.onKey = (e) => this.handleKey(e);
     window.addEventListener('keydown', this.onKey);
   }
-  componentWillUnmount() { window.removeEventListener('keydown', this.onKey); if (this._spin) window.clearInterval(this._spin); if (this._done) window.clearInterval(this._done); if (this._doneLoop) window.clearInterval(this._doneLoop); }
+  componentWillUnmount() { window.removeEventListener('keydown', this.onKey); if (this._spin) window.clearInterval(this._spin); if (this._done) window.clearInterval(this._done); if (this._doneLoop) window.clearInterval(this._doneLoop); if (this._poll) window.clearInterval(this._poll); }
+
+  // Live refresh — merge server cases in; local discussion state is kept,
+  // only unseen case ids get a fresh disc entry.
+  refreshCases() {
+    fetch('/api/inbox')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!d) return;
+        this.setState((s) => {
+          const disc = { ...s.disc };
+          d.cases.forEach((c) => { if (!(c.id in disc)) disc[c.id] = this.normDisc(c.discussion); });
+          return { cases: d.cases, disc };
+        });
+      })
+      .catch(() => {});
+  }
 
   agent() { return this.props.agentName ?? 'Ragnar'; }
 
@@ -1057,6 +1087,38 @@ class Component extends DCLogic {
     this.setState((s) => ({ openTabs: s.openTabs.includes(id) ? s.openTabs : [...s.openTabs, id], active: id, whyOpen: false, srcOpen: false, historyOpen: false, evExpanded: false, split: null, panelTab: brain ? 'Brain' : null }));
   }
   closeTab(id) { this.setState((s) => ({ openTabs: s.openTabs.filter((x) => x !== id), active: s.active === id ? 'inbox' : s.active })); }
+  // Persist the operator's decision when a backend is around; the UI is
+  // optimistic either way.
+  recordDecision(id, option, title) {
+    fetch(`/api/cases/${encodeURIComponent(id)}/decision`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ option, title }),
+    }).catch(() => {});
+  }
+  stepCase(dir) {
+    const c = this.cur(); if (!c) return;
+    const list = this.shown(); if (!list.length) return;
+    const i = list.findIndex((x) => x.id === c.id);
+    const n = i === -1 ? (dir > 0 ? 0 : list.length - 1) : i + dir;
+    if (n < 0 || n >= list.length) return;
+    this.setState({ focus: n });
+    this.openCase(list[n].id);
+  }
+  // Sweep transition to the next view. Prefers a glimm band when the overlay
+  // is mounted (window.__glimmSweep); otherwise a native WAAPI band in the
+  // DS signal-orange. cb runs at the sweep midpoint, when the band covers
+  // the content — that's when the view swaps.
+  sweep(cb) {
+    if (window.__glimmSweep) { window.__glimmSweep(cb); return; }
+    const band = document.createElement('div');
+    band.style.cssText = 'position:fixed;top:0;bottom:0;width:36vw;left:-40vw;z-index:200;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(238,96,24,0.14) 32%,rgba(238,96,24,0.34) 50%,rgba(238,96,24,0.14) 68%,transparent);';
+    document.body.appendChild(band);
+    const anim = band.animate([{ left: '-40vw' }, { left: '110vw' }], { duration: 700, easing: 'cubic-bezier(0.65,0,0.35,1)' });
+    window.setTimeout(() => { try { cb && cb(); } catch (e) {} }, 350);
+    anim.onfinish = () => band.remove();
+    window.setTimeout(() => band.remove(), 1500);
+  }
   choose(i) {
     const c = this.cur(); if (!c || c.state !== 'needs') return;
     const steps = c.brain.playbook.steps;
@@ -1064,6 +1126,8 @@ class Component extends DCLogic {
     this.setState((s) => ({ selectedById: { ...s.selectedById, [c.id]: i }, extraState: { ...s.extraState, [c.id]: { state: 'executing', dot: 'pending', execStep: start } } }));
     this.startSpin();
     this.say(`${c.options[i].title} — recorded. ${c.path[0]} is executing.`);
+    this.recordDecision(c.id, i, c.options[i].title);
+    window.setTimeout(() => this.sweep(() => this.nextCase()), 420);
     const advance = () => {
       const ex = this.state.extraState[c.id]; if (!ex || ex.state !== 'executing') return;
       const next = ex.execStep + 1;
@@ -1131,7 +1195,7 @@ class Component extends DCLogic {
   }
   act(kind) {
     const c = this.cur();
-    if (kind === 'dismiss') { if (!c) return; this.setState((s) => ({ extraState: { ...s.extraState, [c.id]: { state: 'handled', dot: 'done' } } })); this.playDone(c.id); this.say('Dismissed — recorded as a negative signal.'); this.nextCase(); }
+    if (kind === 'dismiss') { if (!c) return; this.setState((s) => ({ extraState: { ...s.extraState, [c.id]: { state: 'handled', dot: 'done' } } })); this.playDone(c.id); this.say('Dismissed — recorded as a negative signal.'); this.recordDecision(c.id, -1, 'Dismissed'); this.nextCase(); }
     else if (kind === 'reply') { this.cmdRef.current && this.cmdRef.current.focus(); this.say('Reply routes back through the requester\u2019s channel.'); }
     else if (kind === 'steer') { this.cmdRef.current && this.cmdRef.current.focus(); this.say(`Steering note goes to the agent — and into ${this.agent()}\u2019s training.`); }
   }
@@ -1519,6 +1583,8 @@ class Component extends DCLogic {
       else if (e.key === 'm') this.setState((s) => ({ panelTab: s.panelTab === 'Conversation' ? null : 'Conversation' }));
       else if (e.key === 'u') this.setState((s) => ({ panelTab: s.panelTab === 'Discussion' ? null : 'Discussion' }));
       else if (e.key === 'n') this.nextCase();
+      else if (e.key === 'j') this.stepCase(1);
+      else if (e.key === 'k') this.stepCase(-1);
       else if (e.key === 'x') this.act('dismiss');
       else if (e.key === 'r') { e.preventDefault(); this.act('reply'); }
       else if (e.key === 's') this.act('steer');
@@ -1776,7 +1842,7 @@ class Component extends DCLogic {
     ];
     setGroups.forEach((g) => g.rows.forEach((r) => { r.rowBorder = r.hasSub ? 'transparent' : 'var(--border-light)'; }));
 
-    const options = (cur ? cur.options : []).map((o, i) => ({ ...o, selected: selected === i, divider: i ? 'var(--border-light)' : 'transparent', choose: () => this.choose(i) }));
+    const options = (cur ? cur.options : []).map((o, i) => ({ ...o, selected: selected === i, bg: selected === i ? 'var(--surface-well-light)' : 'transparent', edge: selected === i ? 'var(--text-primary)' : 'transparent', divider: i ? 'var(--border-light)' : 'transparent', choose: () => this.choose(i) }));
     const actionList = [
       { label: 'Reply to requester', keys: 'r', onClick: () => this.act('reply') },
       { label: 'Steer agent', keys: 's', onClick: () => this.act('steer') },
