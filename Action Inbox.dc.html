@@ -885,9 +885,10 @@ class Component extends DCLogic {
   componentDidMount() {
     document.documentElement.dataset.theme = this.state.theme;
     const apply = (m) => {
+      const cases = m.CASES.map((c) => this.normCase(c));
       const disc = {};
-      m.CASES.forEach((c) => { disc[c.id] = this.normDisc(c.discussion); });
-      this.setState({ cases: m.CASES, disc, lf: m.LIFECYCLE, lib: m.LIBRARY });
+      cases.forEach((c) => { disc[c.id] = this.normDisc(c.discussion); });
+      this.setState({ cases, disc, lf: m.LIFECYCLE, lib: m.LIBRARY });
     };
     // Backend when present; the static module keeps the page self-contained
     // under any dumb file server.
@@ -912,13 +913,18 @@ class Component extends DCLogic {
       .then((d) => {
         if (!d) return;
         this.setState((s) => {
+          const cases = d.cases.map((c) => this.normCase(c));
           const disc = { ...s.disc };
-          d.cases.forEach((c) => { if (!(c.id in disc)) disc[c.id] = this.normDisc(c.discussion); });
-          return { cases: d.cases, disc };
+          cases.forEach((c) => { if (!(c.id in disc)) disc[c.id] = this.normDisc(c.discussion); });
+          return { cases, disc };
         });
       })
       .catch(() => {});
   }
+
+  // Boundary validation: cases arrive from the API or static data — make the
+  // array fields the render path reads unconditionally always exist.
+  normCase(c) { return { conversation: [], discussion: [], why: [], sourcesDetail: [], ...c }; }
 
   agent() { return this.props.agentName ?? 'Ragnar'; }
 

@@ -67,9 +67,10 @@ function buildCase(sig: Signal, id: string): Record<string, unknown> {
   if (sig.steps) {
     c.brain.playbook.steps = sig.steps.map((label, i) => ({ label, state: i === 0 ? "held" : "pending" }));
   }
-  // Template residue that would mislead the operator on a fresh case:
-  delete c.discussion;
-  delete c.conversation;
+  // Template residue would mislead the operator on a fresh case — but the
+  // render path expects these arrays to exist, so empty them, don't delete.
+  c.discussion = [];
+  c.conversation = [];
   return c;
 }
 
