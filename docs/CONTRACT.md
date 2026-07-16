@@ -6,17 +6,19 @@ Derived from the full frontend inventory in `docs/INVENTORY.md`.
 
 ## 0. Implementation status (post-merge with main)
 
-A vertical slice exists on main — `server.ts` (Bun + bun:sqlite, JSON-blob cases + decisions
-ledger) and `agents/worker.ts` (template-driven case filer). Implemented vs this contract:
+The backend is now the Flue app at `apps/server` (the legacy `server.ts` slice is deleted).
+Implemented vs this contract:
 
 | Contract route | Today |
 |---|---|
 | `GET /api/cases` | ✅ as `GET /api/inbox` (cases + lifecycle + library in one payload) |
-| `POST /api/cases/:id/decision` | ⚠️ records ledger row + flips state to `handled` — **no `executing` phase, no playbook-step execution, no runId** |
-| `GET /api/events` (SSE) | ⚠️ 5s polling in the frontend instead |
-| `POST /api/cases` (agent intake) | ✅ (not in v1 contract — adopted into it; worker.ts is the caller) |
+| `POST /api/cases/:id/decision` | ✅ ledger row + `executing` state + `execute-decision` Flue workflow walks playbook steps through stub tools, 202 `{runId}` |
+| `GET /api/events` (SSE) | ✅ frontend consumes it; 5s polling remains only as the SSE-error fallback |
+| `POST /api/cases/:id/dismiss` | ✅ |
+| `POST /api/cases/:id/discussion` | ✅ persisted tree incl. the (still-canned) agent replies |
+| `POST /api/cases` (agent intake) | ✅ (adopted into the contract; worker.ts is the caller) |
 | `GET /api/decisions` | ✅ ledger export (adopted; maps to the training-signal/ledger concept) |
-| dismiss, reply, steer, discussion, lifecycle enrich/columns, docs, settings, ledger export | ❌ client-side only |
+| reply, steer, lifecycle enrich/columns, docs, settings, ledger export | ❌ client-side only |
 
 The wire shape today is still the prototype's display-string shape (`updated: "2m ago"`,
 `timer`, `arrival`…) — the §5 normalizations apply when `apps/web` is ported; until then the

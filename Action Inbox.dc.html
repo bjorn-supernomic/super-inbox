@@ -895,17 +895,25 @@ class Component extends DCLogic {
       .then((r) => { if (!r.ok) throw new Error(String(r.status)); return r.json(); })
       .then((d) => {
         apply({ CASES: d.cases, LIFECYCLE: d.lifecycle, LIBRARY: d.library });
-        // ponytail: 5s polling; switch to SSE if the inbox ever needs sub-second freshness
-        this._poll = window.setInterval(() => this.refreshCases(), 5000);
+        this._live = true;
+        // SSE invalidation → cheap full refetch. On error: close and fall back to
+        // 5s polling — no reconnect loop.
+        this._sse = new EventSource('/api/events');
+        this._sse.onmessage = () => this.refreshCases();
+        this._sse.onerror = () => {
+          if (this._sse) { this._sse.close(); this._sse = null; }
+          if (!this._poll) this._poll = window.setInterval(() => this.refreshCases(), 5000);
+        };
       })
       .catch(() => import('./inbox-data.js').then(apply));
     this.onKey = (e) => this.handleKey(e);
     window.addEventListener('keydown', this.onKey);
   }
-  componentWillUnmount() { window.removeEventListener('keydown', this.onKey); if (this._spin) window.clearInterval(this._spin); if (this._done) window.clearInterval(this._done); if (this._doneLoop) window.clearInterval(this._doneLoop); if (this._poll) window.clearInterval(this._poll); }
+  componentWillUnmount() { window.removeEventListener('keydown', this.onKey); if (this._spin) window.clearInterval(this._spin); if (this._done) window.clearInterval(this._done); if (this._doneLoop) window.clearInterval(this._doneLoop); if (this._poll) window.clearInterval(this._poll); if (this._sse) this._sse.close(); }
 
-  // Live refresh — merge server cases in; local discussion state is kept,
-  // only unseen case ids get a fresh disc entry.
+  // Live refresh — merge server cases in. Once the server has taken over a
+  // case (executing/handled/numeric execStep) its truth wins: the local
+  // extraState overlay is dropped so the server's execStep drives the UI.
   refreshCases() {
     fetch('/api/inbox')
       .then((r) => (r.ok ? r.json() : null))
@@ -913,8 +921,17 @@ class Component extends DCLogic {
         if (!d) return;
         this.setState((s) => {
           const disc = { ...s.disc };
-          d.cases.forEach((c) => { if (!(c.id in disc)) disc[c.id] = this.normDisc(c.discussion); });
-          return { cases: d.cases, disc };
+          const extraState = { ...s.extraState };
+          d.cases.forEach((c) => {
+            if (c.state === 'executing' || c.state === 'handled' || typeof c.execStep === 'number') delete extraState[c.id];
+            if (!(c.id in disc)) { disc[c.id] = this.normDisc(c.discussion); return; }
+            // Server-persisted discussion wins when it drifts from ours — but
+            // never clobber a thread with a post in flight or typing showing.
+            if (this._discBusy || s.discTyping) return;
+            const srv = this.normDisc(c.discussion);
+            if (this.countAll(srv) !== this.countAll(disc[c.id])) disc[c.id] = srv;
+          });
+          return { cases: d.cases, disc, extraState };
         });
       })
       .catch(() => {});
@@ -1128,6 +1145,10 @@ class Component extends DCLogic {
     this.say(`${c.options[i].title} — recorded. ${c.path[0]} is executing.`);
     this.recordDecision(c.id, i, c.options[i].title);
     window.setTimeout(() => this.sweep(() => this.nextCase()), 420);
+    // Live: the server walks the playbook and SSE refetches animate execStep —
+    // the local fake stepper below is static-fallback only.
+    // ponytail: if the decision POST dies the case sticks at its first step until reload
+    if (this._live) return;
     const advance = () => {
       const ex = this.state.extraState[c.id]; if (!ex || ex.state !== 'executing') return;
       const next = ex.execStep + 1;
@@ -1166,13 +1187,26 @@ class Component extends DCLogic {
   stopSpinIfIdle() { this.syncSpin(); }
   syncSpin() {
     const c = this.cur();
-    const busy = Object.values(this.state.extraState).some((x) => x.state === 'executing') || this.state.discTyping || this.state.lfProg != null || !!this.state.lfFill
+    const busy = this.merged().some((x) => x.state === 'executing') || this.state.discTyping || this.state.lfProg != null || !!this.state.lfFill
       || !!(c && (c.state === 'needs' || c.state === 'blocked'));
     if (busy && !this._spin) this.startSpin();
     else if (!busy && this._spin) { window.clearInterval(this._spin); this._spin = null; }
   }
   componentDidUpdate() {
     this.syncSpin();
+    // Live mode: a server refresh flipping executing → handled gets the same
+    // done fx + toast the local stepper plays in static mode.
+    const now = {};
+    this.merged().forEach((c) => { now[c.id] = c.state; });
+    const prev = this._caseStates || {};
+    this._caseStates = now;
+    if (this._live) Object.keys(now).forEach((id) => {
+      if (now[id] === 'handled' && prev[id] === 'executing') {
+        this.playDone(id);
+        this.say(`Done — verified outcome recorded. ${this.agent()} learns from this choice.`);
+        this.stopSpinIfIdle();
+      }
+    });
     // On landing on a handled case: play the reveal once, then replay it every 5s to stay playful.
     const a = this.state.active;
     if (a !== this._lastActive) {
@@ -1195,7 +1229,7 @@ class Component extends DCLogic {
   }
   act(kind) {
     const c = this.cur();
-    if (kind === 'dismiss') { if (!c) return; this.setState((s) => ({ extraState: { ...s.extraState, [c.id]: { state: 'handled', dot: 'done' } } })); this.playDone(c.id); this.say('Dismissed — recorded as a negative signal.'); this.recordDecision(c.id, -1, 'Dismissed'); this.nextCase(); }
+    if (kind === 'dismiss') { if (!c) return; this.setState((s) => ({ extraState: { ...s.extraState, [c.id]: { state: 'handled', dot: 'done' } } })); this.playDone(c.id); this.say('Dismissed — recorded as a negative signal.'); if (this._live) fetch(`/api/cases/${encodeURIComponent(c.id)}/dismiss`, { method: 'POST' }).catch(() => {}); else this.recordDecision(c.id, -1, 'Dismissed'); this.nextCase(); }
     else if (kind === 'reply') { this.cmdRef.current && this.cmdRef.current.focus(); this.say('Reply routes back through the requester\u2019s channel.'); }
     else if (kind === 'steer') { this.cmdRef.current && this.cmdRef.current.focus(); this.say(`Steering note goes to the agent — and into ${this.agent()}\u2019s training.`); }
   }
@@ -1209,7 +1243,7 @@ class Component extends DCLogic {
     return { bar: false, label: `${c.confidence}%` };
   }
 
-  normDisc(list) { return (list || []).map((d) => ({ id: 'd' + (++this._cid), author: d.author, tag: d.tag, time: d.time, body: d.body, ctx: d.ctx || null, replies: this.normDisc(d.replies) })); }
+  normDisc(list) { return (list || []).map((d) => ({ id: d.id || 'd' + (++this._cid), author: d.author, tag: d.tag, time: d.time, body: d.body, ctx: d.ctx || null, replies: this.normDisc(d.replies) })); }
   countAll(nodes) { return (nodes || []).reduce((n, d) => n + 1 + this.countAll(d.replies), 0); }
   findNode(nodes, id) { for (const n of nodes) { if (n.id === id) return n; const f = this.findNode(n.replies, id); if (f) return f; } return null; }
   findPath(nodes, id, acc) {
@@ -1222,6 +1256,21 @@ class Component extends DCLogic {
     return null;
   }
   scrollDisc() { window.setTimeout(() => { if (this.discScrollEl) this.discScrollEl.scrollTop = this.discScrollEl.scrollHeight; }, 40); }
+  // Persist a comment when live; swap the optimistic node's id for the
+  // server's on ack. _discBusy keeps refreshCases from clobbering the thread
+  // while a post is in flight.
+  postDisc(caseId, parentId, body, node, extra) {
+    if (!this._live) return;
+    this._discBusy = (this._discBusy || 0) + 1;
+    fetch(`/api/cases/${encodeURIComponent(caseId)}/discussion`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ parentId: parentId || null, body, ...(extra || {}) }),
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (d && d.comment && node) node.id = d.comment.id; this._discBusy--; })
+      .catch(() => { this._discBusy--; });
+  }
   postReply(caseId, parentId, text) {
     text = (text || '').trim(); if (!text) return;
     const tree = this.state.disc[caseId] || [];
@@ -1232,27 +1281,34 @@ class Component extends DCLogic {
     const mentioned = new RegExp('@(' + this.agent() + '|agent)', 'i').test(text);
     const wantsAgent = mentioned || (parent && parent.tag === 'agent');
     this.setState((s) => ({ disc: { ...s.disc, [caseId]: tree }, discText: '', discReply: null }));
+    this.postDisc(caseId, parentId, text, node);
     this.scrollDisc();
     if (wantsAgent) this.agentThreadReply(caseId, node.id);
   }
   agentThreadReply(caseId, targetId) {
     if (this.state.discTyping) return;
+    // Capture the node by reference — postDisc may swap its id to the
+    // server's before the timeout below fires.
+    const node0 = this.findNode(this.state.disc[caseId] || [], targetId);
     this.setState({ discTyping: targetId, discReply: null });
     this.startSpin();
     this.scrollDisc();
     window.setTimeout(() => {
       const tree = this.state.disc[caseId] || [];
-      const target = this.findNode(tree, targetId);
+      const target = this.findNode(tree, targetId) || node0;
       const c = this.merged().find((x) => x.id === caseId);
       if (!target || !c) { this.setState({ discTyping: null }, () => this.stopSpinIfIdle()); return; }
-      const path = this.findPath(tree, targetId) || [target];
+      const path = this.findPath(tree, target.id) || [target];
       const ans = this.threadAnswer(c, target);
       const snippet = target.body.length > 46 ? target.body.slice(0, 46) + '…' : target.body;
-      target.replies.push({
+      const reply = {
         id: 'd' + (++this._cid), author: c.path[0], tag: 'agent', time: 'now', body: ans.body,
         ctx: { to: `${target.author} — \u201C${snippet}\u201D`, read: [`this thread · ${path.length} comment${path.length === 1 ? '' : 's'}`, ...ans.read] },
         replies: [],
-      });
+      };
+      target.replies.push(reply);
+      // The canned reply persists too, or it vanishes on the next refetch.
+      this.postDisc(caseId, target.id, ans.body, reply, { author: reply.author, tag: 'agent', ctx: reply.ctx });
       this.setState((s) => ({ disc: { ...s.disc, [caseId]: tree }, discTyping: null }), () => this.stopSpinIfIdle());
       this.scrollDisc();
     }, 2600);

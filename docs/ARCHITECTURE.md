@@ -70,13 +70,15 @@ Main already shipped a slice: `server.ts` (Bun + bun:sqlite, 4 routes, seeded fr
 `inbox-data.js`) + `agents/worker.ts` (template-driven intake) + frontend fetch/poll/decision-POST.
 That de-risks the store and proves the loop; the remaining order:
 
-1. **Persist what's still client-only**: discussion comments, dismiss; add `GET /api/events`
-   SSE and drop the 5s poll. Small, closes the optimistic-only gaps in today's server.ts.
-2. **Introduce Flue** (`apps/server`): port the 4 existing routes into `app.ts` (Hono),
-   `db.ts = sqlite()`, and build `execute-decision` — decision → `executing` state → real/stub
-   tool steps streamed via `useFlueWorkflow` → `handled` + ledger + training signal. This
-   replaces the fake stepper and is the first real agent milestone. (server.ts retires here;
-   Flue's Node target replaces Bun.serve — Bun stays as package manager/runner for everything else.)
+1. ✅ **Persist what's still client-only** — discussion comments, dismiss, `GET /api/events`
+   SSE (poll kept only as SSE-error fallback).
+2. ✅ **Introduce Flue** (`apps/server`) — routes ported to `app.ts` (Hono), `db.ts = sqlite()`,
+   `execute-decision` workflow walks playbook steps through stub tools with per-step
+   `case.updated` events driving the UI. Legacy `server.ts` deleted. Verified end-to-end
+   (curl + live browser). Flue quirks worth remembering: `flue dev --port`, watcher must
+   ignore `**/data/**` (SQLite WAL writes retrigger reloads), DB paths anchored via
+   `import.meta.url`, workflows require an `agent` but make no model call unless a session
+   is opened (so no API key needed yet).
 3. **LLM intake**: swap worker.ts's `buildCase` template for a Flue workflow that investigates
    a signal and authors the full case (why, options, playbook, brain, boundary).
 4. `operator-assistant` (⌘K) and discussion investigations via `case-agent`.

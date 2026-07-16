@@ -8,11 +8,17 @@ repo: [bjorn-supernomic/super-inbox](https://github.com/bjorn-supernomic/super-i
 
 - **Frontend** — `Action Inbox.dc.html`: a self-contained React component rendered by
   the dc-runtime (`support.js`), styled by the Supernomic design system (`_ds/`).
-  No build step. Loads data from the backend when present (and live-polls it every 5s),
-  falls back to the static `inbox-data.js` under any dumb file server.
-- **Backend** — `server.ts`: Bun server on port 4820 (override with `PORT`). Serves the
-  static app plus the cases API, persisted in SQLite (`data/inbox.db`, seeded from
-  `inbox-data.js` on first boot).
+  No build step. When the backend is present it loads from the API, listens on
+  `/api/events` (SSE) for live updates, and lets the server drive decision execution;
+  it falls back to the static `inbox-data.js` (with a local fake execution stepper)
+  under any dumb file server.
+- **Backend** — `apps/server`: a [Flue](https://flueframework.com) app (Node target,
+  port 4820). `src/app.ts` (Hono) serves the static frontend + the cases API;
+  `src/shared/store.ts` persists cases/discussion/ledger in SQLite (`node:sqlite`,
+  `apps/server/data/inbox.db`, seeded from `inbox-data.js`); `src/db.ts` gives Flue
+  its own SQLite for conversations and workflow runs. Deciding a case invokes the
+  `execute-decision` workflow, which walks the held playbook steps through stub tools
+  (`src/shared/tools.ts`) and streams progress as `case.updated` events.
 - **Agents** — `agents/worker.ts`: turns incoming signals into fully-shaped proposed
   cases and files them through the API. Template-driven for now; swap `buildCase` for
   an LLM investigation when real signal sources are wired up.
@@ -39,8 +45,14 @@ bun run agents/worker.ts agents/signals/example.json
 |---|---|---|
 | `/api/inbox` | GET | cases + lifecycle + library |
 | `/api/cases` | POST | file a new case (agents) |
-| `/api/cases/:id/decision` | POST | record an operator decision |
+| `/api/cases/:id/decision` | POST | record decision → runs the `execute-decision` workflow (202 `{runId}`) |
+| `/api/cases/:id/dismiss` | POST | dismiss a case (negative training signal) |
+| `/api/cases/:id/discussion` | POST | add a discussion comment (`{parentId, body}`) |
 | `/api/decisions` | GET | decision ledger (training signal export) |
+| `/api/events` | GET | SSE stream of `case.updated` / `case.created` / `discussion.updated` |
+
+Flue's own surfaces (`/workflows`, `/runs`, `/agents`) are mounted underneath; the
+`execute-decision` workflow is invoked ambiently and not exposed over HTTP.
 
 ## Working in the inbox
 

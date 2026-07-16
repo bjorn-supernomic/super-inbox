@@ -2,8 +2,12 @@
   "name": "super-inbox",
   "private": true,
   "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "bun run server.ts",
+    "dev": "cd apps/server && bunx flue dev --port 4820",
     "agent:demo": "bun run agents/worker.ts --demo",
     "build:toolbar": "bun build agentation-src.jsx --outfile agentation-toolbar.js --minify --define process.env.NODE_ENV='\"production\"'",
     "build:glimm": "bun build glimm-src.jsx --outfile glimm-sweep.js --minify --define process.env.NODE_ENV='\"production\"'"
