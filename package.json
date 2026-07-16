@@ -5,10 +5,12 @@
   "scripts": {
     "dev": "bun run server.ts",
     "agent:demo": "bun run agents/worker.ts --demo",
-    "build:toolbar": "bun build agentation-src.jsx --outfile agentation-toolbar.js --minify --define process.env.NODE_ENV='\"production\"'"
+    "build:toolbar": "bun build agentation-src.jsx --outfile agentation-toolbar.js --minify --define process.env.NODE_ENV='\"production\"'",
+    "build:glimm": "bun build glimm-src.jsx --outfile glimm-sweep.js --minify --define process.env.NODE_ENV='\"production\"'"
   },
   "devDependencies": {
     "agentation": "3.0.2",
+    "glimm": "0.3.0",
     "react": "18.3.1",
     "react-dom": "18.3.1"
   }
