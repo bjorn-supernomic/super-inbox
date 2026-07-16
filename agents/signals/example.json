@@ -1,0 +1,15 @@
+{
+  "domain": "Finance",
+  "title": "Release payment: Nordic Print invoice matches PO after correction",
+  "summary": "Vendor reissued the invoice; amount now matches the PO exactly. I can release payment.",
+  "requester": "Accounts Payable",
+  "via": "NetSuite",
+  "body": "Corrected invoice NP-2291 received — the $310 discrepancy from the original submission is resolved.",
+  "confidence": 88,
+  "steps": [
+    "Match invoice against PO",
+    "Verify vendor bank details unchanged",
+    "Release payment",
+    "Post confirmation to #finance"
+  ]
+}
